@@ -8,7 +8,7 @@
 #define INCREMENT (139264)     // 136K byte
 #define INC_PROGRAM_BREAK(programBreak)  (programBreak = programBreak + INCREMENT)
 #define DEC_PROGRAM_BREAK(decrement)     (programBreak = programBreak - decrement)
-#define IS_HEAP_END(programBreak)        (programBreak == (Hmm + HEAP_SIZE))
+
 
 void *HmmAlloc(size_t size);
 void HmmFree(void *ptr);

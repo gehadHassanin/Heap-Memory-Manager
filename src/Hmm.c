@@ -14,7 +14,7 @@ void *HmmAlloc(size_t size) {
     void *pReturnAddress = NULL;
     totalLength = size + sizeof(Block_t);
     // IN CASE OF THE HEAP IS ENDED
-    if (IS_HEAP_END(programBreak)) {
+    if (programBreak > ((void *)Hmm + HEAP_SIZE)) {
         pReturnAddress = NULL;
     } else {
         // IN CASE OF THE FIRST TIME THE USER CALL THE HmmAlloc
@@ -45,6 +45,8 @@ void *HmmAlloc(size_t size) {
                 pSuitableBlock = FreeList_FindSuitableBlock(&freeList, totalLength);
                 if (pSuitableBlock->length > totalLength) {
                     FreeList_Split(&freeList, pSuitableBlock, totalLength);
+                } else {
+                    FreeList_Delete(&freeList, pSuitableBlock);
                 }
                 pReturnAddress = (void *)pSuitableBlock;
             }

@@ -36,10 +36,7 @@ void FreeList_Insert(FreeList_t *pList, Block_t *pBlock) {
         pTemp->length = pBlock->length;
         // IN CASE OF NOT INSERTING THE BLOCK AT THE END OF THE FREE LIST
         if (pBlock->next != NULL) {
-            if (pBlock->next->previous != pBlock) {
-                pBlock->next->previous = pBlock;
-            }
-        
+            pBlock->next->previous = pBlock; 
         }
     }
     pList->size++;
@@ -56,7 +53,7 @@ void FreeList_Delete(FreeList_t *pList, Block_t *pBlock) {
         pBlock->next->previous = NULL;
     } else {
         pBlock->previous->next = pBlock->next;
-        // IN CASE OF IF BLOCK IS NOT THE LAST AT THE FREE LIST
+        // IN CASE OF BLOCK IS NOT THE LAST AT THE FREE LIST
         if (pBlock->next != NULL) {
              pBlock->next->previous = pBlock->previous;
         }   
