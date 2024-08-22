@@ -33,7 +33,6 @@ void FreeList_Insert(FreeList_t *pList, Block_t *pBlock) {
         pBlock->next = pTemp->next;
         pBlock->previous = pTemp;
         pTemp->next = pBlock;
-        pTemp->length = pBlock->length;
         // IN CASE OF NOT INSERTING THE BLOCK AT THE END OF THE FREE LIST
         if (pBlock->next != NULL) {
             pBlock->next->previous = pBlock; 
@@ -70,7 +69,7 @@ Block_t *FreeList_FindSuitableBlock(FreeList_t *pList, uint32_t requiredLength) 
                 pSuitableBlock = pTemp;
                 break;
             } else {
-                while (pTemp->next != NULL && FreeList_IsContingous(pTemp, pTemp->next)) {
+                while (pTemp != NULL && pTemp->next != NULL && FreeList_IsContingous(pTemp, pTemp->next)) {
                     FreeList_Merge(pList, pTemp, pTemp->next);
                     if (pTemp->length >= requiredLength) {
                         pSuitableBlock = pTemp;
@@ -79,11 +78,14 @@ Block_t *FreeList_FindSuitableBlock(FreeList_t *pList, uint32_t requiredLength) 
                         pTemp = pTemp->next;
                     }
                 }
-                if (pTemp->next != NULL && FreeList_IsContingous(pTemp, pTemp->next)) {
+                if (pTemp != NULL && pTemp->next != NULL && FreeList_IsContingous(pTemp, pTemp->next)) {
                     break;
                 }
             }
-            pTemp = pTemp->next;
+            
+            if (pTemp != NULL) {
+                pTemp = pTemp->next;
+            }
         }
     } 
     return pSuitableBlock;
