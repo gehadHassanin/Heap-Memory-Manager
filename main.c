@@ -1,51 +1,32 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include "inc/Hmm.h"
-#include "inc/FreeList.h"
-
-#define NUM_ALLOCS 10000
-#define MAX_SIZE 10240
-#define MAX_ITERATIONS 1000000
-
-void random_alloc_free_test() {
-    srand((unsigned int)time(NULL));
-    
-    void* pointers[NUM_ALLOCS] = {NULL};
-    
-    for (int i = 0; i < MAX_ITERATIONS; ++i) {
-        int index = rand() % NUM_ALLOCS;
-        if (pointers[index] == NULL) {
-            // Allocate memory
-            size_t size = (size_t)(rand() % MAX_SIZE) + 1;
-            pointers[index] = HmmAlloc(size);
-            if (pointers[index] != NULL) {
-                printf("Allocated memory of size %zu at address %p\n", size, pointers[index]);
-            } else {
-                fprintf(stderr, "Allocation failed for size %zu\n", size);
-            }
-        } else {
-            // Free memory
-            printf("Freeing memory at address %p\n", pointers[index]);
-            HmmFree(pointers[index]);
-            pointers[index] = NULL;
-        }
-    }
-    
-    // Free remaining allocated memory
-    for (int i = 0; i < NUM_ALLOCS; ++i) {
-        if (pointers[i] != NULL) {
-            printf("Freeing remaining memory at address %p\n", pointers[i]);
-            HmmFree(pointers[i]);
-            pointers[i] = NULL;
-        }
-    }
-}
+#include "inc/Hmm.h" // Include your custom header for the heap memory manager
 
 int main() {
-    printf("Starting random allocation and deallocation test...\n");
-    random_alloc_free_test();
-    printf("Test complete.\n");
+    // Allocate memory for an array of 3 integers
+    int *arr = (int *)malloc(3 * sizeof(int));
+    if (arr != NULL) {
+        // Assign values to the array
+        arr[0] = 10;
+        arr[1] = 20;
+        arr[2] = 30;
+        printf("Array values: %d, %d, %d\n", arr[0], arr[1], arr[2]);
+
+        // Reallocate memory to expand the array to 5 integers
+        arr = (int *)realloc(arr, 5 * sizeof(int));
+        if (arr != NULL) {
+            arr[3] = 40;
+            arr[4] = 50;
+            printf("Updated array values: %d, %d, %d, %d, %d\n", arr[0], arr[1], arr[2], arr[3], arr[4]);
+
+            // Free the allocated memory
+            free(arr);
+            printf("Memory freed successfully\n");
+        } else {
+            printf("Memory reallocation failed\n");
+        }
+    } else {
+        printf("Memory allocation failed\n");
+    }
+
     return 0;
 }
-
