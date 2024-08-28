@@ -32,7 +32,7 @@ Clone the repository to your local machine:
 git clone git@github.com:gehadHassanin/Heap-Memory-Manager.git
 cd Heap-Memory-Manager
 ```
-## Building and Running
+# Building and Running
 ### Compiling the Test Program
 To compile and run the provided test program (contained in main.c):
 ```
