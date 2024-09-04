@@ -6,7 +6,7 @@ CFLAGS = -g -Wall
 
 # Source files, Objs files and target names
 SRC := $(wildcard src/*.c)
-TEST_SRC := main.c
+TEST_SRC ?= main.c
 TEST_OBJ := $(SRC:.c=.o)
 TEST_OBJ += $(TEST_SRC:.c=.o)
 SHARED_OBJ := $(SRC:.c=.dynamic.o)
@@ -14,6 +14,8 @@ SHARED_TARGET := libhmm.so
 TEST_TARGET := hmm
 
 .PHONY: all clean run run-with-lib
+
+test-build: $(TEST_TARGET)
 
 # Compile the test program
 $(TEST_TARGET): $(TEST_OBJ)

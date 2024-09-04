@@ -34,27 +34,26 @@ Clone the repository to your local machine:
 git clone git@github.com:gehadHassanin/Heap-Memory-Manager.git
 cd Heap-Memory-Manager
 ```
-## Building and Running
-### Compiling the Test Program
-To compile and run the provided test program (contained in main.c):
+## Usage
+### Compile and run the program:
+To compile and run the provided program (contained in main.c):
 ```
-gcc main.c src/Hmm.c src/FreeList.c -o hmm
-./hmm
+make run TEST_SRC=<file_name>
 ```
-
-### Creating the Shared Library
-To create a shared library (libHmm.so) with the custom memory management functions:
-```
-gcc -g -fPIC -Wall -shared src/Hmm.c src/FreeList.c -o libhmm.so
-export LD_PRELOAD=$(realpath libhmm.so)
-```
+NOTE: Replace `<file_name>` with the file you want to run. <br>
+NOTE: by default file_name is main.c, so if you run this command without specifying the file name, the main.c will run
 
 ### Running Commands with the Library
 To run any command using the custom memory management library:
 ```
-LD_PRELOAD=$(realpath libhmm.so) <command>
+make run-shared-lib COMMAND=<command>
 ```
-**NOTE:** Replace `<command>` with the desired command or application you want to run with the custom memory manager
+NOTE: Replace `<command>` with the command you want to run with libhmm.so 
+
+### Clean the build files:
+```
+make clean
+```
 
 ## Example
 Here's an example usage of the Heap Memory Manager:
