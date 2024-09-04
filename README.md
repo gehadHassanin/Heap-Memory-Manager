@@ -43,7 +43,7 @@ make run TEST_SRC=<file_name>
 NOTE: Replace `<file_name>` with the file you want to run. <br>
 NOTE: by default file_name is main.c, so if you run this command without specifying the file name, the main.c will run
 
-### Running Commands with the Library
+### Running Commands with the Library:
 To run any command using the custom memory management library:
 ```
 make run-shared-lib COMMAND=<command>
