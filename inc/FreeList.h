@@ -130,7 +130,7 @@ bool FreeList_IsFree(FreeList_t *pList, Block_t *pBlock);
  * @param pSBlock A pointer to the second block.
  * @return `true` if the blocks are contiguous, `false` otherwise.
  */
-bool FreeList_IsContingous(Block_t *pFBlock, Block_t *pSBlock);
+bool FreeList_IsContiguous(Block_t *pFBlock, Block_t *pSBlock);
 
 
 /**

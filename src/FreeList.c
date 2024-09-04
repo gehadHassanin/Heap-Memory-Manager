@@ -43,23 +43,21 @@ void FreeList_Insert(FreeList_t *pList, Block_t *pBlock) {
 
 
 void FreeList_Delete(FreeList_t *pList, Block_t *pBlock) {
-    // IN CASE OF ONLY ONE BLOCK AT THE FREE LIST
-    if (FreeList_IsFree(pList, pBlock)) {
-        if (pList->size == 1) {
-            pList->head = NULL;
-        // IN CASE OF THE FIRST BLOCK AT THE FREE LIST
-        } else if (pList->size != 1 && pBlock->previous == NULL) {
-            pList->head = pBlock->next;
-            pBlock->next->previous = NULL;
-        } else {
-            pBlock->previous->next = pBlock->next;
-            // IN CASE OF BLOCK IS NOT THE LAST AT THE FREE LIST
-            if (pBlock->next != NULL) {
-                 pBlock->next->previous = pBlock->previous;
-            }   
-        }
-        pList->size--;
+    if (pList->size == 1) {
+        pList->head = NULL;
+    // IN CASE OF THE FIRST BLOCK AT THE FREE LIST
+    } else if (pList->size != 1 && pBlock->previous == NULL) {
+        pList->head = pBlock->next;
+        pBlock->next->previous = NULL;
+    } else {
+        pBlock->previous->next = pBlock->next;
+        // IN CASE OF BLOCK IS NOT THE LAST AT THE FREE LIST
+        if (pBlock->next != NULL) {
+             pBlock->next->previous = pBlock->previous;
+        }   
     }
+    pList->size--;
+
 }
 
 Block_t *FreeList_FindSuitableBlock(FreeList_t *pList, uint32_t requiredLength) {
@@ -71,7 +69,7 @@ Block_t *FreeList_FindSuitableBlock(FreeList_t *pList, uint32_t requiredLength) 
                 pSuitableBlock = pTemp;
                 break;
             } else {
-                while (pTemp != NULL && pTemp->next != NULL && FreeList_IsContingous(pTemp, pTemp->next)) {
+                while (pTemp != NULL && pTemp->next != NULL && FreeList_IsContiguous(pTemp, pTemp->next)) {
                     FreeList_Merge(pList, pTemp, pTemp->next);
                     if (pTemp->length >= requiredLength) {
                         pSuitableBlock = pTemp;
@@ -80,7 +78,7 @@ Block_t *FreeList_FindSuitableBlock(FreeList_t *pList, uint32_t requiredLength) 
                         pTemp = pTemp->next;
                     }
                 }
-                if (pTemp != NULL && pTemp->next != NULL && FreeList_IsContingous(pTemp, pTemp->next)) {
+                if (pTemp != NULL && pTemp->next != NULL && FreeList_IsContiguous(pTemp, pTemp->next)) {
                     break;
                 }
             }
@@ -119,7 +117,7 @@ bool FreeList_IsFree(FreeList_t *pList, Block_t *pBlock) {
     return flag;
 }
 
-bool FreeList_IsContingous(Block_t *pFBlock, Block_t *pSBlock) {
+bool FreeList_IsContiguous(Block_t *pFBlock, Block_t *pSBlock) {
     bool flag = kFalse;
     Block_t *pEndOfFBlock = (void *)pFBlock + pFBlock->length + sizeof(Block_t);
     if (pEndOfFBlock == pSBlock) {

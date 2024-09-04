@@ -74,11 +74,11 @@ void *HmmAlloc(size_t size) {
 
 void HmmFree(void *ptr) {
     // ENSURE THAT THE POINTER VALUE WAS OBTAINED BY A CALL HmmAlloc FUNCTION
-    if (IsVaildAddress(&freeList, (Block_t *)(ptr - sizeof(Block_t)))) {
+    if (IsVaildAddress(&freeList, FETCH_START_BLOCK(ptr))) {
         // ENSURE THAT NOT FREE THE SAME PIECE OF ALLOCATED MEMORY MORE THAN ONCE
-        if (!FreeList_IsFree(&freeList, (Block_t *)(ptr - sizeof(Block_t)))) {
+        if (!FreeList_IsFree(&freeList, FETCH_START_BLOCK(ptr))) {
             DecreaseProgramBreak(ptr);
-            FreeList_Insert(&freeList, (Block_t *)(ptr - sizeof(Block_t)));
+            FreeList_Insert(&freeList, FETCH_START_BLOCK(ptr));
         }       
     }
 }
@@ -99,27 +99,33 @@ void *HmmCalloc(size_t numitems, size_t size) {
 
 void *HmmRealloc(void *ptr, size_t size) {
     void *pReturnAddress = ptr;
-    Block_t *pTempBlock;
-    size_t copy_size;
+    size_t old_size;
     // ENSURE THAT THE POINTER VALUE WAS OBTAINED BY A CALL HmmAlloc FUNCTION
-    if (IsVaildAddress(&freeList, (Block_t *)((char *)ptr - sizeof(Block_t)))) {
-        pTempBlock = (Block_t *)((char *)ptr - sizeof(Block_t));
+    if (IsVaildAddress(&freeList, FETCH_START_BLOCK(ptr))) {
+        old_size = FETCH_START_BLOCK(ptr)->length;
         if (size == 0) {
-            HmmFree(ptr);
+            FreeList_Insert(&freeList, FETCH_START_BLOCK(ptr));
             pReturnAddress =  NULL;
+        } else if (old_size >= size ) {
+            pReturnAddress =  ptr;
+            // CHECK IF THE LEFTOVER SPACE CAN FORM A VALID FREE BLOCK
+            if (IS_VALID_FREE_BLOCK(size - old_size)) {
+                ((Block_t *)(ptr + old_size))->length = (size - old_size - sizeof(Block_t));
+                FreeList_Insert(&freeList, ptr + old_size);
+            }
         } else {
             // ALLOCATE A NEW BLOCK WITH THE REQUESTED SIZE
             pReturnAddress = HmmAlloc(size);
             if (pReturnAddress != NULL) {
                 // DETERMINE THE SIZE TO COPY (MIN OF NEW SIZE OR OLD SIZE)
-                copy_size = size > pTempBlock->length ? pTempBlock->length : size;
+                size = size > FETCH_START_BLOCK(ptr)->length ? FETCH_START_BLOCK(ptr)->length : size;
                 // COPY THE DATA FROM THE OLD BLOCK TO THE NEW BLOCK
-                memcpy(pReturnAddress, ptr, copy_size);
-                // FREE THE OLD BLOCK
-                FreeList_Delete(&freeList, pTempBlock);
+                memcpy(pReturnAddress, ptr, size);
             }
+            // FREE THE OLD BLOCK
+            FreeList_Insert(&freeList, FETCH_START_BLOCK(ptr));
         }
-    }
+   }
     return pReturnAddress;
 }
 
@@ -136,7 +142,7 @@ bool IsVaildAddress(FreeList_t *pList, Block_t *pBlock) {
 }
 
 void DecreaseProgramBreak(void *ptr) {
-    uint32_t len = ((Block_t *)(ptr - sizeof(Block_t)))->length;
+    uint32_t len = FETCH_START_BLOCK(ptr)->length;
     // CALCULATE THE END OF THE BLOCK BASED ON ITS LENGTH
     Block_t *pEndBlock = ptr + len;
     // CHECK IF THIS BLOCK IS AT THE CURRENT PROGRAM BREAK [END OF THE HEAP]

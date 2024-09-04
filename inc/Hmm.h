@@ -3,6 +3,26 @@
 
 #include "FreeList.h"
 
+
+
+/**
+ * @brief Fetches the starting address of a memory block from a given data pointer.
+ *
+ * @param ptr Pointer to the data section of a memory block.
+ * @return Pointer to the `Block_t` structure that represents the block's metadata.
+ */
+#define FETCH_START_BLOCK(ptr)  ((Block_t *)((char *)ptr - sizeof(Block_t)))
+
+
+/**
+ * @brief Checks if a block size is large enough to be considered a valid free block.
+ *
+ * @param size The size of the block to be checked.
+ * @return True if the size is large enough to be a valid free block; otherwise, false.
+ */
+#define IS_VALID_FREE_BLOCK(size)  (size  > (2 * sizeof(Block_t)))
+
+
 /**
  * @brief Defines the increment size for increasing the program break.
  *
@@ -80,7 +100,7 @@ void HmmFree(void *ptr);
  * @param pBlock A pointer to the block to validate.
  * @return `true` if the block address is valid, `false` otherwise.
  */
-static bool IsVaildAddress(FreeList_t *pList, Block_t *pBlock);
+bool IsVaildAddress(FreeList_t *pList, Block_t *pBlock);
 
 /**
  * @brief Decreases the program break if the specified block is at the end of the heap.
@@ -90,7 +110,7 @@ static bool IsVaildAddress(FreeList_t *pList, Block_t *pBlock);
  *
  * @param ptr A pointer to the memory block to check and potentially reduce the program break.
  */
-static void DecreaseProgramBreak(void *ptr);
+void DecreaseProgramBreak(void *ptr);
 
 
 void *malloc(size_t size);
