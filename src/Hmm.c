@@ -74,12 +74,14 @@ void *HmmAlloc(size_t size) {
 
 void HmmFree(void *ptr) {
     // ENSURE THAT THE POINTER VALUE WAS OBTAINED BY A CALL HmmAlloc FUNCTION
-    if (IsVaildAddress(&freeList, FETCH_START_BLOCK(ptr))) {
-        // ENSURE THAT NOT FREE THE SAME PIECE OF ALLOCATED MEMORY MORE THAN ONCE
-        if (!FreeList_IsFree(&freeList, FETCH_START_BLOCK(ptr))) {
-            DecreaseProgramBreak(ptr);
-            FreeList_Insert(&freeList, FETCH_START_BLOCK(ptr));
-        }       
+    if (ptr != NULL) {
+        if (IsVaildAddress(&freeList, FETCH_START_BLOCK(ptr))) {
+            // ENSURE THAT NOT FREE THE SAME PIECE OF ALLOCATED MEMORY MORE THAN ONCE
+            if (!FreeList_IsFree(&freeList, FETCH_START_BLOCK(ptr))) {
+                DecreaseProgramBreak(ptr);
+                FreeList_Insert(&freeList, FETCH_START_BLOCK(ptr));
+            }       
+        }
     }
 }
 
@@ -100,32 +102,36 @@ void *HmmCalloc(size_t numitems, size_t size) {
 void *HmmRealloc(void *ptr, size_t size) {
     void *pReturnAddress = ptr;
     size_t old_size;
-    // ENSURE THAT THE POINTER VALUE WAS OBTAINED BY A CALL HmmAlloc FUNCTION
-    if (IsVaildAddress(&freeList, FETCH_START_BLOCK(ptr))) {
-        old_size = FETCH_START_BLOCK(ptr)->length;
-        if (size == 0) {
-            FreeList_Insert(&freeList, FETCH_START_BLOCK(ptr));
-            pReturnAddress =  NULL;
-        } else if (old_size >= size ) {
-            pReturnAddress =  ptr;
-            // CHECK IF THE LEFTOVER SPACE CAN FORM A VALID FREE BLOCK
-            if (IS_VALID_FREE_BLOCK(size - old_size)) {
-                ((Block_t *)(ptr + old_size))->length = (size - old_size - sizeof(Block_t));
-                FreeList_Insert(&freeList, ptr + old_size);
+    if (ptr == NULL) {
+        pReturnAddress = HmmAlloc(size);
+    } else {
+        // ENSURE THAT THE POINTER VALUE WAS OBTAINED BY A CALL HmmAlloc FUNCTION
+        if (IsVaildAddress(&freeList, FETCH_START_BLOCK(ptr))) {
+            old_size = FETCH_START_BLOCK(ptr)->length;
+            if (size == 0) {
+                FreeList_Insert(&freeList, FETCH_START_BLOCK(ptr));
+                pReturnAddress =  NULL;
+            } else if (old_size >= size ) {
+                pReturnAddress =  ptr;
+                // CHECK IF THE LEFTOVER SPACE CAN FORM A VALID FREE BLOCK
+                if (IS_VALID_FREE_BLOCK(size - old_size)) {
+                    ((Block_t *)(ptr + old_size))->length = (size - old_size - sizeof(Block_t));
+                    FreeList_Insert(&freeList, ptr + old_size);
+                }
+            } else {
+                // ALLOCATE A NEW BLOCK WITH THE REQUESTED SIZE
+                pReturnAddress = HmmAlloc(size);
+                if (pReturnAddress != NULL) {
+                    // DETERMINE THE SIZE TO COPY (MIN OF NEW SIZE OR OLD SIZE)
+                    size = size > FETCH_START_BLOCK(ptr)->length ? FETCH_START_BLOCK(ptr)->length : size;
+                    // COPY THE DATA FROM THE OLD BLOCK TO THE NEW BLOCK
+                    memcpy(pReturnAddress, ptr, size);
+                }
+                // FREE THE OLD BLOCK
+                FreeList_Insert(&freeList, FETCH_START_BLOCK(ptr));
             }
-        } else {
-            // ALLOCATE A NEW BLOCK WITH THE REQUESTED SIZE
-            pReturnAddress = HmmAlloc(size);
-            if (pReturnAddress != NULL) {
-                // DETERMINE THE SIZE TO COPY (MIN OF NEW SIZE OR OLD SIZE)
-                size = size > FETCH_START_BLOCK(ptr)->length ? FETCH_START_BLOCK(ptr)->length : size;
-                // COPY THE DATA FROM THE OLD BLOCK TO THE NEW BLOCK
-                memcpy(pReturnAddress, ptr, size);
-            }
-            // FREE THE OLD BLOCK
-            FreeList_Insert(&freeList, FETCH_START_BLOCK(ptr));
-        }
-   }
+        } 
+    }
     return pReturnAddress;
 }
 
@@ -165,9 +171,7 @@ void *malloc(size_t size) {
 }
 
 void free(void *ptr) {
-    if (ptr != NULL) {
-        HmmFree(ptr);
-    }
+    HmmFree(ptr);
 }
 
 void *calloc(size_t numitems, size_t size) {
@@ -175,9 +179,5 @@ void *calloc(size_t numitems, size_t size) {
 }
 
 void *realloc(void *ptr, size_t size) {
-    if (ptr == NULL) {
-        return HmmAlloc(size);
-    } else {
-        return HmmRealloc(ptr, size);
-    }  
+    return HmmRealloc(ptr, size);
 }
