@@ -7,10 +7,10 @@ This project implements a custom memory allocator, providing functionality simil
 - [Overview](#overview)
 - [Features](#features)
 - [Installation](#installation)
-- [Building and Running](#Building-and-Running)
-  - [Compiling the Test Program](#Compiling-the-Test-Program)
-  - [Creating the Shared Library](#creating-the-shared-library)
-  - [Running Commands with the Library](#Running-Library)
+- [Usage](#usage)
+  - [Compile and run the program](#Compile-and-run-the-program)
+  - [Running commands with the library](#Running-Commands-with-the-Library)
+  - [Clean the build files](#Clean-the-build-files)
 - [Example](#example)
 - [Contact](#contact)
 
@@ -35,7 +35,7 @@ git clone git@github.com:gehadHassanin/Heap-Memory-Manager.git
 cd Heap-Memory-Manager
 ```
 ## Usage
-### Compile and run the program:
+### Compile and run the program
 To compile and run the provided program (contained in main.c):
 ```
 make run TEST_SRC=<file_name>
@@ -43,14 +43,14 @@ make run TEST_SRC=<file_name>
 NOTE: Replace `<file_name>` with the file you want to run. <br>
 NOTE: by default file_name is main.c, so if you run this command without specifying the file name, the main.c will run
 
-### Running Commands with the Library:
+### Running commands with the library
 To run any command using the custom memory management library:
 ```
 make run-shared-lib COMMAND=<command>
 ```
 NOTE: Replace `<command>` with the command you want to run with libhmm.so 
 
-### Clean the build files:
+### Clean the build files
 ```
 make clean
 ```
